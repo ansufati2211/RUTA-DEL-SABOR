@@ -6,9 +6,13 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import com.RutaDelSabor.ruta.models.entities.PedidoDetallado;
 
-public interface IPedidoDetalladoDAO extends CrudRepository<PedidoDetallado, Long>{
+public interface IPedidoDetalladoDAO extends CrudRepository<PedidoDetallado, Long> {
 
-    @Query("SELECT pd.producto.ID, pd.producto.Producto, SUM(pd.Cantidad) as totalVendido FROM PedidoDetallado pd WHERE pd.pedido.AudAnulado = false GROUP BY pd.producto.ID, pd.producto.Producto ORDER BY totalVendido DESC")
-List<Object[]> findTopVentas(Pageable pageable);
-
+    // ✅ CORRECCIÓN: Usar nombres de atributos Java (camelCase)
+    @Query("SELECT pd.producto.id, pd.producto.producto, SUM(pd.cantidad) as totalVendido " +
+           "FROM PedidoDetallado pd " +
+           "WHERE pd.pedido.audAnulado = false " +
+           "GROUP BY pd.producto.id, pd.producto.producto " +
+           "ORDER BY totalVendido DESC")
+    List<Object[]> findTopVentas(Pageable pageable);
 }
