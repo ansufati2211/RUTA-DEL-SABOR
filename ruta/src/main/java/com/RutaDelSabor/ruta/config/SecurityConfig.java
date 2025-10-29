@@ -45,10 +45,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Deshabilita CSRF para APIs stateless
             .authorizeHttpRequests(auth -> auth
                 // Rutas públicas
-                .requestMatchers("/api/auth/**").permitAll() // Login y Registro
-                .requestMatchers(HttpMethod.GET, "/api/menu").permitAll() // Ver menú
-                .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // Permitir ver productos individuales (si aplica)
-                .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // Permitir ver categorías (si aplica)
+                .requestMatchers("/api/auth/**").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/api/menu").permitAll()
+                // [CRÍTICO] Añadir la ruta del Webhook
+                .requestMatchers(HttpMethod.POST, "/api/webhook/dialogflow").permitAll() // <<-- AGREGAR ESTA LÍNEA
+                .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
 
                 // Rutas de administración (requieren rol ADMIN - A IMPLEMENTAR)
                 // .requestMatchers("/api/admin/**").hasRole("ADMIN")

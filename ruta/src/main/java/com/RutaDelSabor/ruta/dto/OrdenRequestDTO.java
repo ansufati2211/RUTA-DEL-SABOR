@@ -3,7 +3,7 @@
 package com.RutaDelSabor.ruta.dto;
 
 import java.util.List;
-import jakarta.validation.constraints.NotEmpty; // Para validar la lista de items
+import jakarta.validation.constraints.NotEmpty; 
 
 public class OrdenRequestDTO {
 
@@ -15,23 +15,27 @@ public class OrdenRequestDTO {
     private String apellidoCliente;
     private String correoCliente;
     private String dniCliente;
-    private String telefonoCliente; // Cambiado a String para consistencia
-    private String tipoComprobante; // "Boleta" o "Factura"
+    private String telefonoCliente; // String por corrección de cohesión
+    private String tipoComprobante; 
 
     // Datos de entrega
-    private String tipoEntrega; // "Delivery" o "Recojo en Local"
+    private String tipoEntrega; 
     private String direccionEntrega;
     private String referenciaEntrega;
 
     // Datos de pago
-    private String metodoPago; // "Tarjeta" o "Yape"
+    private String metodoPago; 
     private String numeroTarjeta;
-    private String fechaVencimiento; // MM/YY
+    private String fechaVencimiento; 
     private String cvv;
     private String titularTarjeta;
     private String numeroYape;
+    
+    // [CRÍTICO - CAMPO AÑADIDO] Cohesión con js/pago_detalles.js
+    private String googlePayToken; 
 
-    // --- INICIO DE LA CORRECCIÓN: GETTERS Y SETTERS COMPLETOS ---
+
+    // --- GETTERS Y SETTERS ---
 
     public List<ItemDTO> getItems() { return items; }
     public void setItems(List<ItemDTO> items) { this.items = items; }
@@ -80,6 +84,8 @@ public class OrdenRequestDTO {
 
     public String getNumeroYape() { return numeroYape; }
     public void setNumeroYape(String numeroYape) { this.numeroYape = numeroYape; }
+    
+    public String getGooglePayToken() { return googlePayToken; }
+    public void setGooglePayToken(String googlePayToken) { this.googlePayToken = googlePayToken; }
 
-    // --- FIN DE LA CORRECCIÓN ---
 }

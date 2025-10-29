@@ -25,7 +25,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import com.RutaDelSabor.ruta.models.entities.Pedido;
 import com.RutaDelSabor.ruta.services.IPedidoService;
+import com.RutaDelSabor.ruta.services.PedidoServiceImpl; // [CRÍTICO] Necesario para updatePedidoStatus
 import jakarta.validation.Valid;
+
+
+// [CRÍTICO - DTO ADICIONAL] DTO de solicitud para actualizar estado (debe estar en el paquete DTOs, se incluye aquí para contexto)
+class EstadoUpdateRequestDTO {
+    private String nuevoEstado;
+    private String notas;
+    
+    public String getNuevoEstado() { return nuevoEstado; }
+    public void setNuevoEstado(String nuevoEstado) { this.nuevoEstado = nuevoEstado; }
+    public String getNotas() { return notas; }
+    public void setNotas(String notas) { this.notas = notas; }
+}
+
 
 @RestController
 @RequestMapping("/api")
@@ -35,6 +49,10 @@ public class PedidoController {
 
     @Autowired
     private IPedidoService pedidoService;
+    
+    @Autowired
+    private PedidoServiceImpl pedidoServiceImpl; // <<-- INYECCIÓN CRÍTICA para el PUT de estado
+
 
     // --- ENDPOINT CREAR ORDEN ---
     @PostMapping("/ordenes")
@@ -55,6 +73,29 @@ public class PedidoController {
         } catch (Exception e) {
             log.error("Error inesperado al crear orden:", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDTO("Error interno al procesar el pedido. Intente más tarde."));
+        }
+    }
+
+    // [CRÍTICO - COHESIÓN CON FRONTEND] ENDPOINT PARA OBTENER DETALLES DE UN PEDIDO POR CLIENTE (js/confirmacion.js)
+    @GetMapping("/ordenes/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getPedidoByIdCliente(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        log.info("Cliente: Solicitud GET /api/ordenes/{}", id);
+        try {
+            Pedido pedido = pedidoService.FindByID(id); 
+            // Verificación de propiedad para seguridad
+            if (!pedido.getCliente().getCorreo().equals(userDetails.getUsername())) {
+                log.warn("Intento de acceso no autorizado al pedido ID {} por usuario {}", id, userDetails.getUsername());
+                throw new PedidoNoEncontradoException("Pedido no encontrado o no pertenece al usuario.");
+            }
+            return ResponseEntity.ok(pedido);
+        } catch (PedidoNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error al obtener el pedido ID {}:", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDTO("Error al obtener el pedido."));
         }
     }
 
@@ -96,13 +137,37 @@ public class PedidoController {
         }
     }
 
-    // --- Endpoints CRUD (Probablemente solo para ADMIN) ---
+    // --- Endpoints CRUD y Paneles Internos ---
 
+    // [CRÍTICO - PERMISOS] Permisos para obtener todos los pedidos (Cohesión con Admin, Vendedor y Delivery)
     @GetMapping("/pedidos")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VENDEDOR', 'DELIVERY')") // <<-- CORRECCIÓN DE PERMISOS
     public List<Pedido> getAll() {
-        log.info("Admin: Obteniendo todos los pedidos.");
+        log.info("Admin/Internal: Obteniendo todos los pedidos.");
         return pedidoService.GetAll();
+    }
+
+    // [CRÍTICO - COHESIÓN CON FRONTEND] ENDPOINT PARA ACTUALIZAR ESTADO DE PEDIDO (Delivery/Admin)
+    @PutMapping("/admin/pedidos/{id}/estado") 
+    @PreAuthorize("hasAnyRole('ADMIN', 'DELIVERY')")
+    public ResponseEntity<?> updatePedidoStatus(
+            @PathVariable Long id,
+            @RequestBody EstadoUpdateRequestDTO estadoRequest) {
+        log.info("Admin/Delivery: Actualizando estado del pedido ID: {} a '{}'", id, estadoRequest.getNuevoEstado());
+        try {
+            // Llama al método que gestiona la lógica de la entidad Estado y actualiza el pedido
+            Pedido actualizado = pedidoServiceImpl.actualizarEstadoPedido( 
+                    id, 
+                    estadoRequest.getNuevoEstado(), 
+                    estadoRequest.getNotas()
+            );
+            return ResponseEntity.ok(actualizado); 
+        } catch (PedidoNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDTO(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Admin/Delivery: Error al actualizar estado del pedido ID {}:", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDTO("Error al actualizar el estado del pedido."));
+        }
     }
 
     @GetMapping("/pedidos/{id}")
@@ -122,18 +187,14 @@ public class PedidoController {
     public ResponseEntity<?> updatePedidoAdmin(@PathVariable Long id, @RequestBody Pedido pedidoActualizado) {
         log.info("Admin: Actualizando pedido ID: {}", id);
         try {
-            Pedido pedidoExistente = pedidoService.FindByID(id); // Verifica si existe
+            Pedido pedidoExistente = pedidoService.FindByID(id); 
             
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Validar y copiar campos actualizables.
-            // Por ejemplo, si el admin puede cambiar el estado:
+            // Permite que el administrador actualice el estado directamente.
             if (pedidoActualizado.getEstadoActual() != null) {
                 pedidoExistente.setEstadoActual(pedidoActualizado.getEstadoActual());
             }
-            // La línea 'pedidoExistente.setUpdatedAt(new Date());' se elimina porque @PreUpdate lo hace automáticamente.
-            // --- FIN DE LA CORRECCIÓN ---
 
-            Pedido guardado = pedidoService.Save(pedidoExistente); // Al guardar aquí, @PreUpdate se disparará.
+            Pedido guardado = pedidoService.Save(pedidoExistente); 
             return ResponseEntity.ok(guardado);
         } catch (PedidoNoEncontradoException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDTO(e.getMessage()));
