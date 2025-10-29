@@ -43,7 +43,7 @@ public class EstadoController {
 
 	@PutMapping("/estado/{id}")
 	public Estado updateEstado(@RequestBody Estado estado, @PathVariable Long id) {
-		estado.setID(id);
+		estado.setId(id);
 		return m_Service.Save(estado);
 	}
 

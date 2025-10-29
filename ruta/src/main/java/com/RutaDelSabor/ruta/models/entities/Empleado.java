@@ -1,36 +1,32 @@
-// Archivo: ruta/src/main/java/com/RutaDelSabor/ruta/models/entities/Empleado.java
-
 package com.RutaDelSabor.ruta.models.entities;
 
 import java.util.Date;
-// import java.util.List; // Eliminado
-// import com.fasterxml.jackson.annotation.JsonIgnore; // Eliminado
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Empleado")
+@Table(name = "empleado")
 public class Empleado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    @Column(nullable = false)
-    private String Nombre_Empleado;
+    @Column(name = "nombre_empleado", nullable = false)
+    private String nombreEmpleado;
 
-    @Column(nullable = false, unique = true)
-    private String Numero_Documento;
+    @Column(name = "numero_documento", nullable = false, unique = true)
+    private String numeroDocumento;
 
-    @Column(nullable = false)
-    private boolean AudAnulado = false;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date CreatedAt;
+    @Column(name = "aud_anulado", nullable = false)
+    private boolean audAnulado = false;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date UpdatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_documento_id", nullable = false)
@@ -44,28 +40,37 @@ public class Empleado {
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = new Date();
-        UpdatedAt = new Date();
+        createdAt = new Date();
+        updatedAt = new Date();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = new Date();
+        updatedAt = new Date();
     }
 
-    // Getters y Setters...
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public String getNombre_Empleado() { return Nombre_Empleado; }
-    public void setNombre_Empleado(String nombre_Empleado) { Nombre_Empleado = nombre_Empleado; }
-    public String getNumero_Documento() { return Numero_Documento; }
-    public void setNumero_Documento(String numero_Documento) { Numero_Documento = numero_Documento; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
+    // --- Getters y Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNombreEmpleado() { return nombreEmpleado; }
+    public void setNombreEmpleado(String nombreEmpleado) { this.nombreEmpleado = nombreEmpleado; }
+
+    public String getNumeroDocumento() { return numeroDocumento; }
+    public void setNumeroDocumento(String numeroDocumento) { this.numeroDocumento = numeroDocumento; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Documento getTipoDocumento() { return tipoDocumento; }
     public void setTipoDocumento(Documento tipoDocumento) { this.tipoDocumento = tipoDocumento; }
+
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
 }

@@ -36,7 +36,7 @@ public class DocumentoController {
 
 	@PutMapping("/documento/{id}")
 	public Documento updateDocumento(@RequestBody Documento documento, @PathVariable Long id) {
-		documento.setID(id);
+		documento.setId(id);
 		return m_Service.Save(documento);
 	}
 

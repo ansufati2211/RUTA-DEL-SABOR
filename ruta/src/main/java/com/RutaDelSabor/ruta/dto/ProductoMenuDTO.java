@@ -43,7 +43,7 @@ public class ProductoMenuDTO {
     public static ProductoMenuDTO fromEntity(Producto producto) {
         if (producto == null) return null;
         return new ProductoMenuDTO(
-                producto.getID(),
+                producto.getId(),
                 producto.getProducto(), // Usar getProducto() si no renombraste el campo
                 producto.getDescripcion(),
                 producto.getPrecio(),

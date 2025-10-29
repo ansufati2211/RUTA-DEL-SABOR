@@ -43,7 +43,7 @@ public class PedidoDetalladoController {
 
 	@PutMapping("/pedidodetallado/{id}")
 	public PedidoDetallado updatePedidoDetallado (@RequestBody PedidoDetallado pedidodetallado, @PathVariable Long id) {
-		pedidodetallado.setID(id);
+		pedidodetallado.setId(id);
 		return m_Service.Save(pedidodetallado);
 	}
 

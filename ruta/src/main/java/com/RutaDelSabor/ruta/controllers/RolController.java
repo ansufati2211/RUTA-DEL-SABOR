@@ -43,7 +43,7 @@ public class RolController {
 
 	@PutMapping("/rol/{id}")
 	public Rol updateRol(@RequestBody Rol rol, @PathVariable Long id) {
-		rol.setID(id);
+		rol.setId(id);
 		return m_Service.Save(rol);
 	}
 

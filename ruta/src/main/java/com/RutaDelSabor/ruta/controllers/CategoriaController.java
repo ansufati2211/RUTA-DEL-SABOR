@@ -37,7 +37,7 @@ public class CategoriaController {
 
 	@PutMapping("/categoria/{id}")
 	public Categoria updateCategoria(@RequestBody Categoria categoria, @PathVariable Long id) {
-		categoria.setID(id);
+		categoria.setId(id);
 		return m_Service.Save(categoria);
 	}
 

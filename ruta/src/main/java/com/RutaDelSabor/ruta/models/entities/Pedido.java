@@ -8,161 +8,168 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Pedido")
+@Table(name = "pedido")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    // Campos relacionados con la orden
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date Fecha_Pedido;
+    @Column(name = "fecha_pedido", nullable = false)
+    private Date fechaPedido;
 
-    @Column(length = 255) // Dirección de entrega
-    private String Direccion;
+    @Column(length = 255)
+    private String direccion;
 
-    @Column(length = 255) // Referencia para entrega
-    private String Referencia;
+    @Column(length = 255)
+    private String referencia;
 
-    @Temporal(TemporalType.TIMESTAMP) // Hora estimada de entrega/recojo
-    private Date Tiempo_Estimado;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "tiempo_estimado")
+    private Date tiempoEstimado;
 
-   @Column(precision = 10, scale = 2) // Para valores monetarios
-private BigDecimal Subtotal = BigDecimal.ZERO;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
 
-@Column(precision = 10, scale = 2) // Costo de envío u otros
-private BigDecimal Monto_Agregado = BigDecimal.ZERO;
+    @Column(name = "monto_agregado", precision = 10, scale = 2)
+    private BigDecimal montoAgregado = BigDecimal.ZERO;
 
-@Column(precision = 10, scale = 2) // Campo Total calculado
-private BigDecimal Total = BigDecimal.ZERO;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal total = BigDecimal.ZERO;
 
-    @Column(length = 50) // Estado actual del pedido para acceso rápido
-    private String estadoActual = "RECIBIDO"; // Estado inicial por defecto
+    @Column(name = "estado_actual", length = 50)
+    private String estadoActual = "RECIBIDO";
 
-    // Campos de pago (considerar mover a entidad Pago separada si se complica)
-    @Column(length = 4) // Solo últimos 4 dígitos por seguridad PCI DSS básica
+    @Column(name = "ultimos_digitos_tarjeta", length = 4)
     private String ultimosDigitosTarjeta;
-    // NO GUARDAR NÚMERO COMPLETO, CVV O FECHA EXP COMPLETA sin cumplir PCI DSS
-    @Column(length = 100)
+    
+    @Column(name = "titular_tarjeta", length = 100)
     private String titularTarjeta;
-    @Column(length = 20)
-    private String numeroYape; // Si se paga con Yape/Plin
 
-    // Campos de auditoría
-    @Column(nullable = false)
-    private boolean AudAnulado = false;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date CreatedAt;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date UpdatedAt;
+    @Column(name = "numero_yape", length = 20)
+    private String numeroYape;
 
+    @Column(name = "aud_anulado", nullable = false)
+    private boolean audAnulado = false;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt;
 
     // --- Relaciones ---
-    // Un pedido pertenece a UN Cliente
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false) // Un pedido debe tener cliente
-    @JsonIgnore // Evita cargar cliente innecesariamente en listados de pedidos
+    @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnore
     private Cliente cliente;
 
-    // Un pedido tiene MUCHOS Detalles (items)
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) // LAZY por defecto
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PedidoDetallado> detalles = new ArrayList<>();
 
-    // Un pedido tiene UN Comprobante (Boleta/Factura)
     @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private Comprobante comprobante;
-
-    // Un pedido tiene UNA instancia de pago
+    
     @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private MetodoPago pago;
 
-    // Un pedido tiene UNA instancia de entrega
     @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private Entrega entrega;
 
-    // Un pedido tiene UN historial de Estados
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("FechaHoraCambio DESC") // El más reciente primero
+    @OrderBy("fechaHoraCambio DESC")
     private List<Estado> historialEstados = new ArrayList<>();
-
-    // Opcional: Un empleado gestiona/prepara el pedido
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "empleado_gestor_id")
-    // private Empleado empleadoGestor;
-
-    // --- Constructor y Timestamps ---
+    
     public Pedido() {}
 
     @PrePersist
     protected void onCreate() {
         Date now = new Date();
-        CreatedAt = now;
-        UpdatedAt = now;
-        if (Fecha_Pedido == null) Fecha_Pedido = now; // Fecha de pedido por defecto
-        if (estadoActual == null) estadoActual = "RECIBIDO"; // Estado inicial
+        createdAt = now;
+        updatedAt = now;
+        if (fechaPedido == null) fechaPedido = now;
+        if (estadoActual == null) estadoActual = "RECIBIDO";
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = new Date();
+        updatedAt = new Date();
     }
 
-    // --- Métodos de ayuda (Ejemplo: Añadir estado al historial) ---
     public void addEstadoHistorial(Estado nuevoEstado) {
         if (this.historialEstados == null) {
             this.historialEstados = new ArrayList<>();
         }
-        nuevoEstado.setPedido(this); // Asegurar la relación bidireccional
+        nuevoEstado.setPedido(this);
         this.historialEstados.add(nuevoEstado);
-        this.estadoActual = nuevoEstado.getTipo_Estado(); // Actualizar estado actual
-        this.UpdatedAt = new Date(); // Forzar actualización de timestamp del pedido
+        this.estadoActual = nuevoEstado.getTipoEstado(); // CORREGIDO
+        this.updatedAt = new Date();
     }
 
+    // --- Getters y Setters Corregidos ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // --- Getters y Setters ---
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public Date getFecha_Pedido() { return Fecha_Pedido; }
-    public void setFecha_Pedido(Date fecha_Pedido) { Fecha_Pedido = fecha_Pedido; }
-    public String getDireccion() { return Direccion; }
-    public void setDireccion(String direccion) { Direccion = direccion; }
-    public String getReferencia() { return Referencia; }
-    public void setReferencia(String referencia) { Referencia = referencia; }
-    public Date getTiempo_Estimado() { return Tiempo_Estimado; }
-    public void setTiempo_Estimado(Date tiempo_Estimado) { Tiempo_Estimado = tiempo_Estimado; }
-    public BigDecimal getSubtotal() { return Subtotal; }
-    public void setSubtotal(BigDecimal subtotal) { Subtotal = subtotal; }
-    public BigDecimal getMonto_Agregado() { return Monto_Agregado; }
-    public void setMonto_Agregado(BigDecimal monto_Agregado) { Monto_Agregado = monto_Agregado; }
-    public BigDecimal getTotal() { return Total; } // Cambiado a BigDecimal
-    public void setTotal(BigDecimal total) { Total = total; } // Cambiado a BigDecimal
+    public Date getFechaPedido() { return fechaPedido; }
+    public void setFechaPedido(Date fechaPedido) { this.fechaPedido = fechaPedido; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getReferencia() { return referencia; }
+    public void setReferencia(String referencia) { this.referencia = referencia; }
+
+    public Date getTiempoEstimado() { return tiempoEstimado; }
+    public void setTiempoEstimado(Date tiempoEstimado) { this.tiempoEstimado = tiempoEstimado; }
+
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+
+    public BigDecimal getMontoAgregado() { return montoAgregado; }
+    public void setMontoAgregado(BigDecimal montoAgregado) { this.montoAgregado = montoAgregado; }
+
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
+
     public String getEstadoActual() { return estadoActual; }
     public void setEstadoActual(String estadoActual) { this.estadoActual = estadoActual; }
+    
     public String getUltimosDigitosTarjeta() { return ultimosDigitosTarjeta; }
     public void setUltimosDigitosTarjeta(String ultimosDigitosTarjeta) { this.ultimosDigitosTarjeta = ultimosDigitosTarjeta; }
+    
     public String getTitularTarjeta() { return titularTarjeta; }
     public void setTitularTarjeta(String titularTarjeta) { this.titularTarjeta = titularTarjeta; }
+
     public String getNumeroYape() { return numeroYape; }
     public void setNumeroYape(String numeroYape) { this.numeroYape = numeroYape; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
+
     public List<PedidoDetallado> getDetalles() { return detalles; }
     public void setDetalles(List<PedidoDetallado> detalles) { this.detalles = detalles; }
+
     public Comprobante getComprobante() { return comprobante; }
     public void setComprobante(Comprobante comprobante) { this.comprobante = comprobante; }
+    
     public MetodoPago getPago() { return pago; }
     public void setPago(MetodoPago pago) { this.pago = pago; }
+
     public Entrega getEntrega() { return entrega; }
     public void setEntrega(Entrega entrega) { this.entrega = entrega; }
+
     public List<Estado> getHistorialEstados() { return historialEstados; }
     public void setHistorialEstados(List<Estado> historialEstados) { this.historialEstados = historialEstados; }
-    // Getter/Setter para empleadoGestor si lo implementas...
 }

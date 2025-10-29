@@ -2,54 +2,60 @@ package com.RutaDelSabor.ruta.models.entities;
 
 import java.math.BigDecimal;
 import java.util.Date;
-// import java.util.List; // No necesita listas
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Pedido_Detallado") // Corregido nombre de tabla
+@Table(name = "pedido_detallado")
 public class PedidoDetallado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    private int Cantidad;
+    private int cantidad;
+    
     @Column(precision = 10, scale = 2)
-    private BigDecimal Subtotal;
-    private boolean AudAnulado;
-    private Date CreatedAt;
-    private Date UpdatedAt;
+    private BigDecimal subtotal;
+    
+    @Column(name = "aud_anulado")
+    private boolean audAnulado;
+    
+    @Column(name = "created_at")
+    private Date createdAt;
+    
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
-    // --- INICIO DE CAMBIOS (Según Guías) ---
-
-    // 2. AÑADIR LAS REFERENCIAS CORRECTAS (A UN Pedido y UN Producto)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false) // Clave foránea a Pedido
+    @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producto_id", nullable = false) // Clave foránea a Producto
+    @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
-    // --- FIN DE CAMBIOS ---
+    // --- Getters y Setters Corregidos ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // Getters y Setters...
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public int getCantidad() { return Cantidad; }
-    public void setCantidad(int cantidad) { Cantidad = cantidad; }
-    public BigDecimal getSubtotal() { return Subtotal; }
-    public void setSubtotal(BigDecimal subtotal) { Subtotal = subtotal; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
-    public void setUpdatedAt(Date updatedAt) { UpdatedAt = updatedAt; }
+    public int getCantidad() { return cantidad; }
+    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
 
-    // Getters y Setters para las nuevas referencias
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
+
     public Producto getProducto() { return producto; }
     public void setProducto(Producto producto) { this.producto = producto; }
 }

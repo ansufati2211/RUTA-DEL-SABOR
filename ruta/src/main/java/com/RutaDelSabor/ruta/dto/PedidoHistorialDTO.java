@@ -46,10 +46,10 @@ public class PedidoHistorialDTO {
                         .collect(Collectors.toList());
 
         PedidoHistorialDTO dto = new PedidoHistorialDTO();
-        dto.setId(pedido.getID());
-        dto.setFechaPedido(pedido.getFecha_Pedido());
+        dto.setId(pedido.getId());
+        dto.setFechaPedido(pedido.getFechaPedido());
         dto.setSubtotal(pedido.getSubtotal());
-        dto.setMontoAgregado(pedido.getMonto_Agregado());
+        dto.setMontoAgregado(pedido.getMontoAgregado());
         dto.setTotal(pedido.getTotal());
         dto.setEstadoActual(estado);
         dto.setItems(itemsDto);

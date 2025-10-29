@@ -1,11 +1,8 @@
 package com.RutaDelSabor.ruta.services;
 
 import java.math.BigDecimal;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.RutaDelSabor.ruta.dto.ItemDTO;
@@ -27,12 +24,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@SuppressWarnings("unused")
 @Service
 public class PedidoServiceImpl implements IPedidoService {
 
     private static final Logger log = LoggerFactory.getLogger(PedidoServiceImpl.class);
-    // ❌ ELIMINAR @Column aquí - no va en constantes
+    
     private static final BigDecimal COSTO_DELIVERY_PREDETERMINADO = new BigDecimal("5.00");
 
     @Autowired private IPedidoDAO pedidoRepository;
@@ -51,7 +47,7 @@ public class PedidoServiceImpl implements IPedidoService {
     @Override
     @Transactional
     public Pedido Save(Pedido object) {
-        log.info("Guardando pedido ID: {}", object.getID() != null ? object.getID() : "NUEVO");
+        log.info("Guardando pedido ID: {}", object.getId() != null ? object.getId() : "NUEVO"); // CORREGIDO
         object.setAudAnulado(false);
         return pedidoRepository.save(object);
     }
@@ -81,7 +77,9 @@ public class PedidoServiceImpl implements IPedidoService {
 
         Cliente cliente = clienteRepository.findByCorreo(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado: " + userDetails.getUsername()));
-        log.debug("Cliente encontrado: ID {}", cliente.getID());
+        
+        // ✅ CORRECCIÓN AQUÍ
+        log.debug("Cliente encontrado: ID {}", cliente.getId());
 
         Pedido nuevoPedido = new Pedido();
         nuevoPedido.setCliente(cliente);
@@ -89,11 +87,11 @@ public class PedidoServiceImpl implements IPedidoService {
         nuevoPedido.setReferencia(ordenRequest.getReferenciaEntrega());
         
         Estado estadoInicial = new Estado();
-        estadoInicial.setTipo_Estado("RECIBIDO");
+        // Asumiendo que corregirás Estado.java a camelCase
+        estadoInicial.setTipoEstado("RECIBIDO"); 
         nuevoPedido.addEstadoHistorial(estadoInicial);
         log.debug("Establecido estado inicial: RECIBIDO");
         
-        // ❌ ELIMINAR @Column aquí - no va en variables locales
         BigDecimal subtotalCalculado = BigDecimal.ZERO;
         List<PedidoDetallado> detalles = new ArrayList<>();
 
@@ -102,6 +100,7 @@ public class PedidoServiceImpl implements IPedidoService {
                     .orElseThrow(() -> new ProductoNoEncontradoException("Producto no encontrado con ID: " + item.getProductoId()));
 
             if (producto.getStock() < item.getCantidad()) {
+                // Asumiendo que corregirás Producto.java a camelCase
                 throw new StockInsuficienteException("Stock insuficiente para " + producto.getProducto() + " (Disponibles: " + producto.getStock() + ")");
             }
 
@@ -110,12 +109,11 @@ public class PedidoServiceImpl implements IPedidoService {
             detalle.setProducto(producto);
             detalle.setCantidad(item.getCantidad());
             
-            // Multiplicar BigDecimal correctamente
+            // Asumiendo que corregirás Producto.java a camelCase
             BigDecimal subtotalItem = producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad()));
             detalle.setSubtotal(subtotalItem);
             detalles.add(detalle);
 
-            // Sumar BigDecimal correctamente
             subtotalCalculado = subtotalCalculado.add(subtotalItem);
             producto.setStock(producto.getStock() - item.getCantidad());
         }
@@ -123,13 +121,12 @@ public class PedidoServiceImpl implements IPedidoService {
         nuevoPedido.setDetalles(detalles);
         nuevoPedido.setSubtotal(subtotalCalculado);
         
-        // Usar BigDecimal correctamente
         BigDecimal costoDelivery = "Delivery".equalsIgnoreCase(ordenRequest.getTipoEntrega()) 
             ? COSTO_DELIVERY_PREDETERMINADO 
             : BigDecimal.ZERO;
-        nuevoPedido.setMonto_Agregado(costoDelivery);
+        // Asumiendo que corregirás Pedido.java a camelCase
+        nuevoPedido.setMontoAgregado(costoDelivery); 
         
-        // Sumar BigDecimal correctamente
         nuevoPedido.setTotal(subtotalCalculado.add(costoDelivery));
 
         if ("Tarjeta".equalsIgnoreCase(ordenRequest.getMetodoPago())) {
@@ -142,7 +139,7 @@ public class PedidoServiceImpl implements IPedidoService {
         }
 
         Pedido pedidoGuardado = pedidoRepository.save(nuevoPedido);
-        log.info("Pedido creado exitosamente con ID: {}", pedidoGuardado.getID());
+        log.info("Pedido creado exitosamente con ID: {}", pedidoGuardado.getId()); // CORREGIDO
 
         return pedidoGuardado;
     }
@@ -158,6 +155,7 @@ public class PedidoServiceImpl implements IPedidoService {
              throw new PedidoNoEncontradoException("Pedido no encontrado o no pertenece al usuario.");
         }
         
+        // Asumiendo que corregirás Pedido.java a camelCase
         return pedido.getEstadoActual() != null ? pedido.getEstadoActual() : "DESCONOCIDO";
     }
 
@@ -167,7 +165,9 @@ public class PedidoServiceImpl implements IPedidoService {
         log.debug("Obteniendo historial de pedidos para usuario {}", userDetails.getUsername());
         Cliente cliente = clienteRepository.findByCorreo(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado: " + userDetails.getUsername()));
-        return pedidoRepository.findByCliente_IdOrderByFechaPedidoDesc(cliente.getID());
+        
+        // ✅ CORRECCIÓN AQUÍ
+        return pedidoRepository.findByCliente_IdOrderByFechaPedidoDesc(cliente.getId());
     }
 
     @Transactional
@@ -176,13 +176,14 @@ public class PedidoServiceImpl implements IPedidoService {
         Pedido pedido = FindByID(pedidoId);
 
         Estado nuevoHistorial = new Estado();
-        nuevoHistorial.setTipo_Estado(nuevoEstadoStr);
+        // Asumiendo que corregirás Estado.java a camelCase
+        nuevoHistorial.setTipoEstado(nuevoEstadoStr); 
         nuevoHistorial.setNotas(notas);
 
         pedido.addEstadoHistorial(nuevoHistorial);
 
         Pedido pedidoActualizado = pedidoRepository.save(pedido);
-        log.info("Estado del pedido ID {} actualizado a '{}'", pedidoActualizado.getID(), pedidoActualizado.getEstadoActual());
+        log.info("Estado del pedido ID {} actualizado a '{}'", pedidoActualizado.getId(), pedidoActualizado.getEstadoActual()); // CORREGIDO
         return pedidoActualizado;
     }
 }

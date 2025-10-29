@@ -1,5 +1,3 @@
-// Archivo: ruta/src/main/java/com/RutaDelSabor/ruta/services/ClienteServiceImpl.java
-
 package com.RutaDelSabor.ruta.services;
 
 import java.util.List;
@@ -74,9 +72,11 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     @Transactional
     public Cliente guardar(Cliente cliente) {
-        boolean esNuevo = cliente.getID() == null;
+        // ✅ CORRECCIÓN AQUÍ
+        boolean esNuevo = cliente.getId() == null;
         log.info("{} cliente: {}", esNuevo ? "Creando" : "Actualizando", cliente.getCorreo());
 
+        // ✅ CORRECCIÓN AQUÍ (x2)
         if (passwordEncoder != null && cliente.getContraseña() != null && !cliente.getContraseña().startsWith("$2a$")) {
             log.debug("Hasheando contraseña para cliente {}", cliente.getCorreo());
             cliente.setContraseña(passwordEncoder.encode(cliente.getContraseña()));
@@ -85,7 +85,7 @@ public class ClienteServiceImpl implements IClienteService {
         cliente.setAudAnulado(false);
 
         Cliente guardado = clienteRepository.save(cliente);
-        log.info("Cliente {} exitosamente con ID: {}", esNuevo ? "creado" : "actualizado", guardado.getID());
+        log.info("Cliente {} exitosamente con ID: {}", esNuevo ? "creado" : "actualizado", guardado.getId());
         return guardado;
     }
 

@@ -42,7 +42,7 @@ public class EmpleadoController {
 
 	@PutMapping("/empleado/{id}")
 	public Empleado updateEmpleado(@RequestBody Empleado empleado, @PathVariable Long id) {
-		empleado.setID(id);
+		empleado.setId(id);
 		return m_Service.Save(empleado);
 	}
 

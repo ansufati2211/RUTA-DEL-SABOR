@@ -2,68 +2,68 @@ package com.RutaDelSabor.ruta.models.entities;
 
 import java.math.BigDecimal;
 import java.util.Date;
-// import java.util.List; // Ya no se necesita
-// import com.fasterxml.jackson.annotation.JsonIgnore; // Ya no se necesita
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Producto") // Corregido nombre de tabla
+@Table(name = "producto")
 public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    private String Producto; // Nombre del producto
+    private String producto;
+    
     @Column(precision = 10, scale = 2)
-    private BigDecimal Precio;
-    private int Stock; // ¡Importante para la lógica de negocio!
-    private String Imagen;
-    private String Descripcion;
-    private boolean AudAnulado;
-    private Date CreatedAt;
-    private Date UpdatedAt;
+    private BigDecimal precio;
+    
+    private int stock;
+    
+    private String imagen;
+    
+    private String descripcion;
+    
+    @Column(name = "aud_anulado")
+    private boolean audAnulado;
+    
+    @Column(name = "created_at")
+    private Date createdAt;
+    
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
-    // --- INICIO DE CAMBIOS (Según Guías) ---
-
-    // 1. ELIMINAR ESTA LISTA INCORRECTA
-    // @OneToMany(mappedBy = "producto", fetch = FetchType.LAZY)
-    // @JsonIgnore
-    // private List<Categoria> categorias;
-
-    // 2. ELIMINAR ESTA RELACIÓN INCORRECTA
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "pedidodetallado_id", nullable = true)
-    // private PedidoDetallado pedidodetallado;
-
-    // 3. AÑADIR LA REFERENCIA CORRECTA (Un producto pertenece a UNA categoría)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id") // Clave foránea a Categoria
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
+    
+    // --- Getters y Setters Corregidos ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // --- FIN DE CAMBIOS ---
+    public String getProducto() { return producto; }
+    public void setProducto(String producto) { this.producto = producto; }
 
-    // Getters y Setters...
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public String getProducto() { return Producto; } // Cambiar nombre a 'getNombre' sería mejor práctica
-    public void setProducto(String producto) { Producto = producto; } // Cambiar a 'setNombre'
-    public BigDecimal getPrecio() { return Precio; }
-    public void setPrecio(BigDecimal precio) { Precio = precio; }
-    public int getStock() { return Stock; }
-    public void setStock(int stock) { Stock = stock; }
-    public String getImagen() { return Imagen; }
-    public void setImagen(String imagen) { Imagen = imagen; }
-    public String getDescripcion() { return Descripcion; }
-    public void setDescripcion(String descripcion) { Descripcion = descripcion; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
-    public void setUpdatedAt(Date updatedAt) { UpdatedAt = updatedAt; }
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
 
-    // Getter y Setter para la nueva referencia
+    public int getStock() { return stock; }
+    public void setStock(int stock) { this.stock = stock; }
+
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Categoria getCategoria() { return categoria; }
     public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 }

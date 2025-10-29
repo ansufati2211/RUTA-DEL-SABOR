@@ -36,7 +36,7 @@ public class MetodoPagoController {
 
 	@PutMapping("/metodopago/{id}")
 	public MetodoPago updateMetodoPago (@RequestBody MetodoPago metodopago, @PathVariable Long id) {
-		metodopago.setID(id);
+		metodopago.setId(id);
 		return m_Service.Save(metodopago);
 	}
 

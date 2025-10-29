@@ -45,10 +45,10 @@ public class PedidoController {
         log.info("Recibida petición POST /api/ordenes por usuario: {}", userDetails.getUsername());
         try {
             Pedido nuevoPedido = pedidoService.crearNuevaOrden(ordenRequest, userDetails);
-            log.info("Orden creada exitosamente con ID: {}", nuevoPedido.getID());
+            log.info("Orden creada exitosamente con ID: {}", nuevoPedido.getId());
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new OrdenResponseDTO(nuevoPedido.getID(),
-                            "Pedido recibido exitosamente con ID: " + nuevoPedido.getID()));
+                    .body(new OrdenResponseDTO(nuevoPedido.getId(),
+                            "Pedido recibido exitosamente con ID: " + nuevoPedido.getId()));
         } catch (StockInsuficienteException | ProductoNoEncontradoException e) {
             log.warn("Error de validación al crear orden: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDTO(e.getMessage()));

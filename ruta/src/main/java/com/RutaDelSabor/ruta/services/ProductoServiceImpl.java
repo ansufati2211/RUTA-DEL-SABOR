@@ -61,13 +61,13 @@ public class ProductoServiceImpl implements IProductoService {
     @Override
     @Transactional
     public Producto guardar(Producto producto) {
-        boolean esNuevo = producto.getID() == null;
+        boolean esNuevo = producto.getId() == null;
         log.info("{} producto: {}", esNuevo ? "Creando" : "Actualizando", producto.getProducto());
 
         producto.setAudAnulado(false);
 
         Producto guardado = productoRepository.save(producto);
-        log.info("Producto {} exitosamente con ID: {}", esNuevo ? "creado" : "actualizado", guardado.getID());
+        log.info("Producto {} exitosamente con ID: {}", esNuevo ? "creado" : "actualizado", guardado.getId());
         return guardado;
     }
 

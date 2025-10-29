@@ -34,7 +34,7 @@ public class CategoriaServiceImpl implements ICategoriaService {
     @Transactional
     public Categoria Save(Categoria object) {
          log.info("Guardando categoría: {}", object.getCategoria()); // Ajusta si renombraste
-         if (object.getID() == null) { object.setCreatedAt(new java.util.Date()); }
+         if (object.getId() == null) { object.setCreatedAt(new java.util.Date()); }
          object.setUpdatedAt(new java.util.Date());
          object.setAudAnulado(false); // Asegurar que no esté anulada al guardar/actualizar
         return categoriaRepository.save(object);

@@ -34,7 +34,7 @@ public class ComentarioController {
 
 	@PutMapping("/comentario/{id}")
 	public Comentario updateComentario(@RequestBody Comentario comentario, @PathVariable Long id) {
-		comentario.setID(id);
+		comentario.setId(id);
 		return m_Service.Save(comentario);
 	}
 

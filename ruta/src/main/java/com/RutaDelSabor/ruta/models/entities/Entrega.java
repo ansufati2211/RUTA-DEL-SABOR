@@ -4,76 +4,79 @@ import java.util.Date;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Entrega")
+@Table(name = "entrega")
 public class Entrega {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    @Column(nullable = false)
-    private String Metodo_Entrega; // "Delivery", "Recojo en Local"
+    @Column(name = "metodo_entrega", nullable = false)
+    private String metodoEntrega;
 
-    // Este campo no parece pertenecer aquí, el pago está en Pedido o MetodoPago
-    // private BigDecimal Metodo_Pago;
+    @Column(name = "fecha_hora_estimada")
+    private Date fechaHoraEstimada;
+    
+    @Column(name = "fecha_hora_real")
+    private Date fechaHoraReal;
+    
+    @Column(name = "estado_entrega")
+    private String estadoEntrega;
 
-    // Podrías añadir campos como: FechaHoraEstimada, FechaHoraReal, EstadoEntrega ("EN_RUTA", "ENTREGADO"), RepartidorID (si aplica)
-    private Date FechaHoraEstimada;
-    private Date FechaHoraReal;
-    private String EstadoEntrega; // Pendiente, En Ruta, Entregado, Cancelado
-
-    @Column(nullable = false)
-    private boolean AudAnulado = false;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date CreatedAt;
+    @Column(name = "aud_anulado", nullable = false)
+    private boolean audAnulado = false;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date UpdatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt;
 
-    // --- RELACIÓN CORREGIDA ---
-    // Una Entrega pertenece a UN Pedido
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false, unique = true) // Único si un pedido solo tiene UNA entrega principal
+    @JoinColumn(name = "pedido_id", nullable = false, unique = true)
     private Pedido pedido;
-    // --- FIN RELACIÓN ---
 
     public Entrega() {}
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = new Date();
-        UpdatedAt = new Date();
-        if (EstadoEntrega == null) EstadoEntrega = "PENDIENTE"; // Estado inicial por defecto
+        createdAt = new Date();
+        updatedAt = new Date();
+        if (estadoEntrega == null) estadoEntrega = "PENDIENTE";
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = new Date();
+        updatedAt = new Date();
     }
 
-    // Getters y Setters...
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public String getMetodo_Entrega() { return Metodo_Entrega; }
-    public void setMetodo_Entrega(String metodo_Entrega) { Metodo_Entrega = metodo_Entrega; }
-    // public BigDecimal getMetodo_Pago() { return Metodo_Pago; } // Eliminado
-    // public void setMetodo_Pago(BigDecimal metodo_Pago) { Metodo_Pago = metodo_Pago; } // Eliminado
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    // public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
-    // public void setUpdatedAt(Date updatedAt) { UpdatedAt = updatedAt; }
+    // --- Getters y Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getMetodoEntrega() { return metodoEntrega; }
+    public void setMetodoEntrega(String metodoEntrega) { this.metodoEntrega = metodoEntrega; }
+
+    public Date getFechaHoraEstimada() { return fechaHoraEstimada; }
+    public void setFechaHoraEstimada(Date fechaHoraEstimada) { this.fechaHoraEstimada = fechaHoraEstimada; }
+
+    public Date getFechaHoraReal() { return fechaHoraReal; }
+    public void setFechaHoraReal(Date fechaHoraReal) { this.fechaHoraReal = fechaHoraReal; }
+
+    public String getEstadoEntrega() { return estadoEntrega; }
+    public void setEstadoEntrega(String estadoEntrega) { this.estadoEntrega = estadoEntrega; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
-    // Getters/Setters para FechaHoraEstimada, FechaHoraReal, EstadoEntrega...
-    public Date getFechaHoraEstimada() { return FechaHoraEstimada; }
-    public void setFechaHoraEstimada(Date fechaHoraEstimada) { FechaHoraEstimada = fechaHoraEstimada; }
-    public Date getFechaHoraReal() { return FechaHoraReal; }
-    public void setFechaHoraReal(Date fechaHoraReal) { FechaHoraReal = fechaHoraReal; }
-    public String getEstadoEntrega() { return EstadoEntrega; }
-    public void setEstadoEntrega(String estadoEntrega) { EstadoEntrega = estadoEntrega; }
 }

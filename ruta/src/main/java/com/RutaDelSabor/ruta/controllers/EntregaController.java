@@ -42,7 +42,7 @@ public class EntregaController {
 
 	@PutMapping("/entrega/{id}")
 	public Entrega updateEntrega(@RequestBody Entrega entrega, @PathVariable Long id) {
-		entrega.setID(id);
+		entrega.setId(id);
 		return m_Service.Save(entrega);
 	}
 

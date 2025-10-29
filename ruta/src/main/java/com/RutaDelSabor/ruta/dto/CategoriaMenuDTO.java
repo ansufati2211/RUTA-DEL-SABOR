@@ -40,7 +40,7 @@ public class CategoriaMenuDTO {
                         .map(ProductoMenuDTO::fromEntity)
                         .collect(Collectors.toList());
         return new CategoriaMenuDTO(
-                categoria.getID(),
+                categoria.getId(),
                 categoria.getCategoria(), // Usar getCategoria() si no renombraste el campo
                 categoria.getIcono(),
                 productosDTO

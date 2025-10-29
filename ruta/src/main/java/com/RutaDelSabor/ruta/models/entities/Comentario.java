@@ -4,73 +4,80 @@ import java.util.Date;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Comentario")
+@Table(name = "comentario")
 public class Comentario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
     @Column(length = 50)
-    private String Medio;
+    private String medio;
 
-    @Column(columnDefinition = "TEXT") // Para textos más largos
-    private String Texto;
+    @Column(columnDefinition = "TEXT")
+    private String texto;
 
-    @Column // Asume rating 1-5
-    private int Puntuacion;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date Fecha_Comentario;
-
-    @Column(nullable = false)
-    private boolean AudAnulado = false;
+    private int puntuacion;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date CreatedAt;
+    @Column(name = "fecha_comentario", nullable = false)
+    private Date fechaComentario;
+
+    @Column(name = "aud_anulado", nullable = false)
+    private boolean audAnulado = false;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date UpdatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt;
 
-    // --- Relación Corregida ---
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false) // Debe pertenecer a un cliente
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
-    // --- Fin Relación ---
 
     public Comentario() {}
 
     @PrePersist
     protected void onCreate() {
         Date now = new Date();
-        CreatedAt = now;
-        UpdatedAt = now;
-        if (Fecha_Comentario == null) Fecha_Comentario = now;
+        createdAt = now;
+        updatedAt = now;
+        if (fechaComentario == null) fechaComentario = now;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = new Date();
+        updatedAt = new Date();
     }
 
     // --- Getters y Setters ---
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public String getMedio() { return Medio; }
-    public void setMedio(String medio) { Medio = medio; }
-    public String getTexto() { return Texto; }
-    public void setTexto(String texto) { Texto = texto; }
-    public int getPuntuacion() { return Puntuacion; }
-    public void setPuntuacion(int puntuacion) { Puntuacion = puntuacion; }
-    public Date getFecha_Comentario() { return Fecha_Comentario; }
-    public void setFecha_Comentario(Date fecha_Comentario) { Fecha_Comentario = fecha_Comentario; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getMedio() { return medio; }
+    public void setMedio(String medio) { this.medio = medio; }
+
+    public String getTexto() { return texto; }
+    public void setTexto(String texto) { this.texto = texto; }
+
+    public int getPuntuacion() { return puntuacion; }
+    public void setPuntuacion(int puntuacion) { this.puntuacion = puntuacion; }
+
+    public Date getFechaComentario() { return fechaComentario; }
+    public void setFechaComentario(Date fechaComentario) { this.fechaComentario = fechaComentario; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
 }

@@ -5,72 +5,79 @@ import java.util.Date;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "MetodoPago") // Podría ser PagoPedido si es la instancia del pago
-public class MetodoPago { // O PagoPedido
+@Table(name = "metodo_pago")
+public class MetodoPago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
-    @Column(nullable = false)
-    private String Metodo_Pago; // "Tarjeta", "Yape", "Efectivo"
+    @Column(name = "metodo_pago", nullable = false)
+    private String metodoPago;
 
-    // Añadir campos relevantes: Monto, FechaPago, EstadoPago ("PENDIENTE", "PAGADO", "FALLIDO")
     @Column(precision = 10, scale = 2)
-    private BigDecimal Monto;
-    private Date FechaPago;
-    private String EstadoPago;
+    private BigDecimal monto;
+    
+    @Column(name = "fecha_pago")
+    private Date fechaPago;
+    
+    @Column(name = "estado_pago")
+    private String estadoPago;
 
-    @Column(nullable = false)
-    private boolean AudAnulado = false;
+    @Column(name = "aud_anulado", nullable = false)
+    private boolean audAnulado = false;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
-    private Date CreatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date UpdatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt;
 
-    // --- RELACIÓN CORREGIDA ---
-    // Esta instancia de pago pertenece a UN Pedido
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false, unique = true) // Único si un pedido solo tiene UN método/instancia de pago
+    @JoinColumn(name = "pedido_id", nullable = false, unique = true)
     private Pedido pedido;
-    // --- FIN RELACIÓN ---
 
     public MetodoPago() {}
 
     @PrePersist
     protected void onCreate() {
-        CreatedAt = new Date();
-        UpdatedAt = new Date();
-        if (EstadoPago == null) EstadoPago = "PENDIENTE"; // Estado inicial
+        createdAt = new Date();
+        updatedAt = new Date();
+        if (estadoPago == null) estadoPago = "PENDIENTE";
     }
 
     @PreUpdate
     protected void onUpdate() {
-        UpdatedAt = new Date();
+        updatedAt = new Date();
     }
 
-    // Getters y Setters...
-    public Long getID() { return ID; }
-    public void setID(Long iD) { ID = iD; }
-    public String getMetodo_Pago() { return Metodo_Pago; }
-    public void setMetodo_Pago(String metodo_Pago) { Metodo_Pago = metodo_Pago; }
-    public boolean isAudAnulado() { return AudAnulado; }
-    public void setAudAnulado(boolean audAnulado) { AudAnulado = audAnulado; }
-    public Date getCreatedAt() { return CreatedAt; }
-    // public void setCreatedAt(Date createdAt) { CreatedAt = createdAt; }
-    public Date getUpdatedAt() { return UpdatedAt; }
-    // public void setUpdatedAt(Date updatedAt) { UpdatedAt = updatedAt; }
+    // --- Getters y Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+
+    public BigDecimal getMonto() { return monto; }
+    public void setMonto(BigDecimal monto) { this.monto = monto; }
+
+    public Date getFechaPago() { return fechaPago; }
+    public void setFechaPago(Date fechaPago) { this.fechaPago = fechaPago; }
+
+    public String getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(String estadoPago) { this.estadoPago = estadoPago; }
+
+    public boolean isAudAnulado() { return audAnulado; }
+    public void setAudAnulado(boolean audAnulado) { this.audAnulado = audAnulado; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
-    // Getters/Setters para Monto, FechaPago, EstadoPago...
-     public BigDecimal getMonto() { return Monto; }
-    public void setMonto(BigDecimal monto) { Monto = monto; }
-    public Date getFechaPago() { return FechaPago; }
-    public void setFechaPago(Date fechaPago) { FechaPago = fechaPago; }
-    public String getEstadoPago() { return EstadoPago; }
-    public void setEstadoPago(String estadoPago) { EstadoPago = estadoPago; }
 }

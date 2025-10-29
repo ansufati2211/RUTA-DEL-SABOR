@@ -36,7 +36,7 @@ public class ComprobanteController {
 
 	@PutMapping("/comprobante/{id}")
 	public Comprobante updateComprobante(@RequestBody Comprobante comprobante, @PathVariable Long id) {
-		comprobante.setID(id);
+		comprobante.setId(id);
 		return m_Service.Save(comprobante);
 	}
 

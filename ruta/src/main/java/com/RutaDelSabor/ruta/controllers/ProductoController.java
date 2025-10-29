@@ -90,7 +90,7 @@ public class ProductoController {
     public ResponseEntity<?> createProducto(@Valid @RequestBody Producto producto) {
         log.info("Admin: Solicitud POST /api/productos/admin");
          // Asegurarse que no venga con ID para evitar actualizar por error
-         if (producto.getID() != null) {
+         if (producto.getId() != null) {
               return ResponseEntity.badRequest().body(new ErrorResponseDTO("No incluya ID al crear un nuevo producto."));
          }
         try {
@@ -117,7 +117,7 @@ public class ProductoController {
             productoExistente.setImagen(productoDetalles.getImagen());
             // Asegurarse que al actualizar se reactive si estaba anulado? O manejarlo aparte?
             // productoExistente.setAudAnulado(false); // Opcional: reactivar al actualizar
-            if (productoDetalles.getCategoria() != null && productoDetalles.getCategoria().getID() != null) {
+            if (productoDetalles.getCategoria() != null && productoDetalles.getCategoria().getId() != null) {
                  // Aquí necesitarías buscar la Categoria por ID para asociarla correctamente
                  // Categoria categoria = categoriaService.FindByID(productoDetalles.getCategoria().getID());
                  // productoExistente.setCategoria(categoria);
